@@ -1,0 +1,7 @@
+{
+  "name": "ledger",
+  "version": "0.1.0",
+  "description": "A fine turno appende a CHANGELOG.md un riepilogo dei file creati o modificati da Claude.",
+  "author": { "name": "Andrea Sportello" },
+  "types": "./types/index.d.ts"
+}

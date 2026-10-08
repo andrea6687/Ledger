@@ -1,0 +1,13 @@
+{
+  "name": "ledger",
+  "owner": {
+    "name": "Andrea Sportello"
+  },
+  "plugins": [
+    {
+      "name": "ledger",
+      "source": "./"
+    }
+  ],
+  "description": "Ledger: a fine turno appende a CHANGELOG.md un riepilogo delle modifiche di Claude"
+}
