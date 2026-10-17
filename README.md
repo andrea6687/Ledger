@@ -1,52 +1,54 @@
+[Italiano](README.it.md)
+
 # Ledger
 
-Mod per Claude Code (terminale e app desktop). A fine di ogni turno in cui Claude crea o modifica file con Edit o Write, appende un blocco a `CHANGELOG.md` nella cartella di lavoro della sessione:
+A Claude Code mod (terminal and desktop app). At the end of every turn in which Claude creates or modifies files with Edit or Write, it appends a block to `CHANGELOG.md` in the session's working directory:
 
 ```
 ## 2026-10-08 09:41
 
-**Richiesta:** Correggi il calcolo dell'IVA in app.py
+**Request:** Correggi il calcolo dell'IVA in app.py
 
-**Perché:** L'aliquota IVA usata era sbagliata.
+**Why:** The VAT rate in use was wrong.
 
-- `src/app.py`: modificato (2 interventi, +14 −3)
-  - Cosa è cambiato: Aliquota portata da 0.2 a 0.22.
-- `README.md`: creato (1 intervento, +20 −0)
-  - Cosa è cambiato: Aggiunta la sezione di installazione.
+- `src/app.py`: modified (2 edits, +14 −3)
+  - What changed: Rate changed from 0.2 to 0.22.
+- `README.md`: created (1 edit, +20 −0)
+  - What changed: Added the installation section.
 ```
 
-- **Richiesta**: il tuo prompt, riportato com'è (accorciato a 200 caratteri).
-- **Perché** e **Cosa è cambiato**: frasi brevi in italiano scritte da un modello (Haiku) a partire dalla richiesta, dalla risposta finale di Claude e da frammenti troncati delle modifiche.
+- **Request**: your prompt, quoted as-is (truncated to 200 characters).
+- **Why** and **What changed**: short English sentences written by a model (Haiku) from the request, Claude's final reply, and truncated snippets of the changes.
 
-## Chiamata al modello
+## Model call
 
-Per scrivere il perché e il cosa, il mod fa **una chiamata a Haiku per turno con modifiche**, con le credenziali della sessione (consumo di token minimo, ma non zero). Alla chiamata vanno la tua richiesta, la risposta finale di Claude e fino a 3 frammenti di circa 240 caratteri per file. Se il progetto contiene dati sensibili, imposta `USE_MODEL = false` all'inizio di `hooks/register.ts`: il changelog riporterà solo richiesta, file e conteggi di righe, senza inviare nulla al modello.
+To write the why and the what, the mod makes **one Haiku call per turn with changes**, using the session credentials (token use is minimal, but not zero). The call includes your request, Claude's final reply, and up to 3 snippets of about 240 characters per file. If the project contains sensitive data, set `USE_MODEL = false` at the top of `hooks/register.ts`: the changelog will report only the request, the files, and the line counts, without sending anything to the model.
 
-Se la chiamata fallisce o il modello non risponde in JSON valido, il blocco viene scritto lo stesso, senza le righe "Perché" e "Cosa è cambiato".
+If the call fails or the model does not reply with valid JSON, the block is written anyway, without the "Why" and "What changed" lines.
 
-## Note
+## Notes
 
-- Se `CHANGELOG.md` non esiste viene creato con un'intestazione, e il file non registra le proprie modifiche.
-- Conta solo gli Edit/Write andati a buon fine; le modifiche fatte da comandi Bash (`sed`, `mv`, ...) non compaiono.
-- I conteggi di righe sono approssimati e l'orario è quello locale della macchina.
-- Le frasi del modello sono un riassunto e possono essere imprecise: il file è un'aiuto alla documentazione, non una fonte di verità.
+- If `CHANGELOG.md` does not exist it is created with a header, and the file does not record its own changes.
+- Only successful Edit/Write calls are counted; changes made by Bash commands (`sed`, `mv`, ...) do not appear.
+- Line counts are approximate and the time is the machine's local time.
+- The model's sentences are a summary and can be inaccurate: the file is a documentation aid, not a source of truth.
 
-## Installazione
+## Installation
 
-### A) Da GitHub (consigliata)
+### A) From GitHub (recommended)
 
-Da un terminale Claude Code:
+From a Claude Code terminal:
 
 ```
 /plugin install ledger --marketplace andrea6687/ledger
 ```
 
-Rispondi `y` per aggiungere il marketplace e scegli lo scope **user**. Da quel momento il mod funziona in ogni sessione, nel terminale e nella tab Code di Claude Desktop.
+Answer `y` to add the marketplace and choose the **user** scope. From then on the mod works in every session, in the terminal and in the Code tab of Claude Desktop.
 
-### B) Da cartella locale
+### B) From a local folder
 
-1. Copia la cartella in `~/.claude/mods/ledger`.
-2. In `~/.claude/settings.json` aggiungi:
+1. Copy the folder to `~/.claude/mods/ledger`.
+2. In `~/.claude/settings.json` add:
 
 ```json
 {
@@ -54,18 +56,18 @@ Rispondi `y` per aggiungere il marketplace e scegli lo scope **user**. Da quel m
 }
 ```
 
-3. Riavvia Claude Code o Claude Desktop (chiudilo del tutto, poi riaprilo) e apri una nuova sessione.
+3. Restart Claude Code or Claude Desktop (quit it completely, then open it again) and open a new session.
 
-Per una prova veloce solo da terminale, senza installare nulla:
+For a quick terminal-only try, without installing anything:
 
 ```
 claude --plugin-dir ./ledger
 ```
 
-### Verifica
+### Verification
 
-Fai fare a Claude una modifica a un file: a fine turno trovi un nuovo blocco in `CHANGELOG.md` nella cartella del progetto.
+Have Claude modify a file: at the end of the turn you will find a new block in `CHANGELOG.md` in the project folder.
 
-## Licenza
+## License
 
-MIT, vedi `LICENSE`.
+MIT, see `LICENSE`.
