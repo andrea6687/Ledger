@@ -4,7 +4,12 @@ const usage = { input_tokens: 1, output_tokens: 1 }
 
 async function runTurn($: any, on: any, modelText: string | null) {
   const written: Record<string, string> = {}
+  const toasts: { text?: string; timeoutMs?: number }[] = []
 
+  on('ui.toast', (_$: any, e: { text?: string; timeoutMs?: number }) => {
+    toasts.push({ text: e.text, timeoutMs: e.timeoutMs })
+    return { value: undefined }
+  })
   on('session.start', ($: any, e: any) => ({ cwd: e.cwd }))
   on('prompt.submit', ($: any, e: any) => ({ text: e.text }))
   on('turn.start', () => ({ turnId: 't1' }))
@@ -34,17 +39,18 @@ async function runTurn($: any, on: any, modelText: string | null) {
   } as any)
   await $.turn.complete({ reason: 'answer', answer: 'Ho portato l\'aliquota al 22%.', durationMs: 1 } as any)
 
-  return written['/work/CHANGELOG.md'] ?? ''
+  return { changelog: written['/work/CHANGELOG.md'] ?? '', toasts }
 }
 
 describe('ledger', () => {
   test('scrive richiesta, perché e cosa è cambiato', async ($, on) => {
-    const text = await runTurn(
+    const { changelog: text, toasts } = await runTurn(
       $,
       on,
       '{"perche": "L\'aliquota IVA era sbagliata.", "file": {"src/app.py": "Aliquota portata da 0.2 a 0.22."}}',
     )
 
+    expect(toasts).toEqual([{ text: 'CHANGELOG.md aggiornato (1 file)', timeoutMs: 10000 }])
     expect(text).toContain('src/app.py')
     expect(text).toContain('modificato')
     expect(text).toContain('**Richiesta:** Correggi il calcolo dell\'IVA')
@@ -53,8 +59,9 @@ describe('ledger', () => {
   })
 
   test('senza risposta del modello scrive comunque file e richiesta', async ($, on) => {
-    const text = await runTurn($, on, null)
+    const { changelog: text, toasts } = await runTurn($, on, null)
 
+    expect(toasts).toEqual([{ text: 'CHANGELOG.md aggiornato (1 file)', timeoutMs: 10000 }])
     expect(text).toContain('src/app.py')
     expect(text).toContain('**Richiesta:** Correggi il calcolo dell\'IVA')
     expect(text).not.toContain('Cosa è cambiato')

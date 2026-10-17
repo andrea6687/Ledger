@@ -211,7 +211,7 @@ export const register: Register = on => {
     await $.fs.write(path, (typeof current === 'string' ? current : HEADER) + block)
     await update($, pending, () => [])
     await update($, request, () => '')
-    $.ui.toast(`CHANGELOG.md aggiornato (${changed.length} file)`)
+    $.ui.toast(`CHANGELOG.md aggiornato (${changed.length} file)`, { timeoutMs: 10000 })
 
     return result
   })
