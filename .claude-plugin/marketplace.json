@@ -9,5 +9,5 @@
       "source": "./"
     }
   ],
-  "description": "Ledger: a fine turno appende a CHANGELOG.md un riepilogo delle modifiche di Claude"
+  "description": "Ledger: at the end of a turn, appends to CHANGELOG.md a summary of Claude's changes"
 }
