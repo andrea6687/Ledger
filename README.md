@@ -32,6 +32,7 @@ If the call fails or the model does not reply with valid JSON, today's section i
 - One section per local day (`## YYYY-MM-DD`). A later turn on the same day updates that section: the sentence for a file already listed is replaced with the latest, a new file is added at the end, and the day's requests stay a short list without duplicates. Earlier days are left unchanged.
 - Files outside the working directory, files that no longer exist on disk, and task notifications are ignored.
 - If `LEDGER.md` does not exist it is created with a header, and the file does not record its own changes.
+- In a git repository, Ledger adds a `LEDGER.md` line to the root `.gitignore`, creating that file when it is missing. If `LEDGER.md` is already tracked, remove it from the index by hand with `git rm --cached LEDGER.md`.
 - `CHANGELOG.md` files that earlier versions wrote in a project's root are not removed; delete them by hand.
 - Only successful Edit/Write calls are counted; changes made by Bash commands (`sed`, `mv`, ...) do not appear.
 - Line counts are approximate and the date is the machine's local date.
