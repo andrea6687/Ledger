@@ -41,7 +41,7 @@ async function runTurn($: any, on: any, modelText: string | null) {
   await $.tool.call({ tool: 'Write', file_path: '/tmp/scratch.py', content: 'x = 1' + String.fromCharCode(10) } as any)
   await $.turn.complete({ reason: 'answer', answer: 'Ho portato l\'aliquota al 22%.', durationMs: 1 } as any)
 
-  return { changelog: written['/work/CHANGELOG.md'] ?? '', toasts }
+  return { changelog: written['/work/LEDGER.md'] ?? '', toasts }
 }
 
 describe('ledger', () => {
@@ -52,7 +52,7 @@ describe('ledger', () => {
       '{"why": "The VAT rate was wrong.", "files": {"src/app.py": "Rate changed from 0.2 to 0.22."}}',
     )
 
-    expect(toasts).toEqual([{ text: 'CHANGELOG.md updated (1 file)', timeoutMs: 10000 }])
+    expect(toasts).toEqual([{ text: 'LEDGER.md updated (1 file)', timeoutMs: 10000 }])
     expect(text).toContain('Generated automatically by the ledger mod')
     expect(text).toContain('`src/app.py`: modified (1 edit,')
     expect(text).toContain('**Request:** Correggi il calcolo dell\'IVA')
@@ -65,7 +65,7 @@ describe('ledger', () => {
   test('senza risposta del modello scrive comunque file e richiesta', async ($, on) => {
     const { changelog: text, toasts } = await runTurn($, on, null)
 
-    expect(toasts).toEqual([{ text: 'CHANGELOG.md updated (1 file)', timeoutMs: 10000 }])
+    expect(toasts).toEqual([{ text: 'LEDGER.md updated (1 file)', timeoutMs: 10000 }])
     expect(text).toContain('`src/app.py`: modified (1 edit,')
     expect(text).toContain('**Request:** Correggi il calcolo dell\'IVA')
     expect(text).not.toContain('What changed')

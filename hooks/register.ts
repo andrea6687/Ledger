@@ -3,7 +3,7 @@ import type { EngineInterface, Register } from 'claude-code'
 
 import type { ChangedFile } from '../types'
 
-const FILE = 'CHANGELOG.md'
+const FILE = 'LEDGER.md'
 const HEADER =
   '# Changelog\n\nGenerated automatically by the ledger mod: one block for each turn in which Claude modified files.\n'
 
@@ -216,7 +216,7 @@ export const register: Register = on => {
     await update($, pending, () => [])
     await update($, request, () => '')
     const count = changed.length
-    $.ui.toast(`CHANGELOG.md updated (${count} ${count === 1 ? 'file' : 'files'})`, { timeoutMs: 10000 })
+    $.ui.toast(`LEDGER.md updated (${count} ${count === 1 ? 'file' : 'files'})`, { timeoutMs: 10000 })
 
     return result
   })

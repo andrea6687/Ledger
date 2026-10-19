@@ -2,7 +2,7 @@
 
 # Ledger
 
-A Claude Code mod (terminal and desktop app). At the end of every turn in which Claude creates or modifies files with Edit or Write, it appends a block to `CHANGELOG.md` in the session's working directory:
+A Claude Code mod (terminal and desktop app). At the end of every turn in which Claude creates or modifies files with Edit or Write, it appends a block to `LEDGER.md` in the session's working directory:
 
 ```
 ## 2026-10-08 09:41
@@ -28,7 +28,7 @@ If the call fails or the model does not reply with valid JSON, the block is writ
 
 ## Notes
 
-- If `CHANGELOG.md` does not exist it is created with a header, and the file does not record its own changes.
+- If `LEDGER.md` does not exist it is created with a header, and the file does not record its own changes.
 - Only successful Edit/Write calls are counted; changes made by Bash commands (`sed`, `mv`, ...) do not appear.
 - Line counts are approximate and the time is the machine's local time.
 - The model's sentences are a summary and can be inaccurate: the file is a documentation aid, not a source of truth.
@@ -66,7 +66,7 @@ claude --plugin-dir ./ledger
 
 ### Verification
 
-Have Claude modify a file: at the end of the turn you will find a new block in `CHANGELOG.md` in the project folder.
+Have Claude modify a file: at the end of the turn you will find a new block in `LEDGER.md` in the project folder.
 
 ## License
 
