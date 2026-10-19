@@ -5,7 +5,7 @@ import type { ChangedFile } from '../types'
 
 const FILE = 'LEDGER.md'
 const HEADER =
-  '# Changelog\n\nGenerated automatically by the ledger mod: one block for each turn in which Claude modified files.\n'
+  '# Ledger\n\nGenerated automatically by the ledger mod: one block for each turn in which Claude modified files.\n'
 
 // Il perché e il cosa sono scritti da un breve completamento del modello con le
 // credenziali della sessione. A false il mod usa solo la richiesta e le statistiche.
