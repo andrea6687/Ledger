@@ -9,5 +9,5 @@
       "source": "./"
     }
   ],
-  "description": "Ledger: at the end of a turn, appends to LEDGER.md a summary of Claude's changes"
+  "description": "Ledger: at the end of a turn, updates today's section in LEDGER.md with a summary of Claude's changes"
 }
