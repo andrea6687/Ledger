@@ -32,6 +32,7 @@ Se la chiamata fallisce o il modello non risponde in JSON valido, la sezione di 
 - Una sezione per giorno locale (`## AAAA-MM-GG`). Un turno successivo nello stesso giorno aggiorna quella sezione: la frase di un file già elencato è sostituita con l'ultima, un file nuovo si aggiunge in fondo, e le richieste del giorno restano una lista breve senza duplicati. I giorni precedenti restano intatti.
 - I file fuori dalla cartella di lavoro, i file che non esistono più su disco e le notifiche vengono ignorati.
 - Se `LEDGER.md` non esiste viene creato con un'intestazione, e il file non registra le proprie modifiche.
+- In un repository git, Ledger aggiunge una riga `LEDGER.md` al `.gitignore` nella radice, e lo crea se manca. Se `LEDGER.md` è già tracciato, va tolto dall'indice a mano con `git rm --cached LEDGER.md`.
 - I `CHANGELOG.md` generati dalle versioni precedenti nella radice dei progetti non vengono rimossi: vanno cancellati a mano.
 - Conta solo gli Edit/Write andati a buon fine; le modifiche fatte da comandi Bash (`sed`, `mv`, ...) non compaiono.
 - I conteggi di righe sono approssimati e la data è quella locale della macchina.

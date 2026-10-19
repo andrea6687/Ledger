@@ -18,6 +18,8 @@ type Harness = {
   present?: string[]
   disk?: Record<string, string>
   replies?: (string | null)[]
+  git?: boolean
+  blockGitignore?: boolean
 }
 
 async function setup($: any, on: any, harness: Harness = {}) {
@@ -26,7 +28,10 @@ async function setup($: any, on: any, harness: Harness = {}) {
 
   for (const [path, text] of Object.entries(harness.disk ?? {})) disk[norm(path)] = text
 
-  const present = new Set((harness.present ?? ['/work/src/app.py']).map(norm))
+  const root = norm(cwd).replace(/\/+$/, '')
+  const present = new Set((harness.present ?? [`${root}/src/app.py`]).map(norm))
+
+  if (harness.git) present.add(`${root}/.git`)
   const replies = [...(harness.replies ?? [])]
   const toasts: { text?: string; timeoutMs?: number }[] = []
 
@@ -46,7 +51,11 @@ async function setup($: any, on: any, harness: Harness = {}) {
   }))
   on('fs.read', (_$: any, e: { path: string }) => ({ value: disk[fromRunner(e.path)] ?? '' }))
   on('fs.write', (_$: any, e: { path: string; text: string }) => {
-    disk[fromRunner(e.path)] = e.text
+    const path = fromRunner(e.path)
+
+    if (harness.blockGitignore && path.endsWith('/.gitignore')) return { deny: 'blocked' }
+
+    disk[path] = e.text
     return { value: undefined }
   })
   on('model.complete', () => {
@@ -296,5 +305,112 @@ Generated automatically by the ledger mod: one section for each day in which Cla
     expect(text).not.toContain('task-id')
     expect(text).not.toMatch(/^- \s*$/m)
     expect(text.split('Add the next file').length - 1).toBe(1)
+  })
+
+  test('crea il .gitignore con LEDGER.md', async ($, on) => {
+    const { disk } = await setup($, on, {
+      git: true,
+      replies: [
+        '{"why": "First.", "files": {"src/app.py": "First."}}',
+        '{"why": "Second.", "files": {"src/app.py": "Second."}}',
+      ],
+    })
+
+    await $.prompt.submit({ text: 'Primo' } as any)
+    await $.turn.start({ turnId: 't1' } as any)
+    await edit($, '/work/src/app.py')
+    await $.turn.complete({ reason: 'answer', answer: 'Ok.', durationMs: 1 } as any)
+    await $.prompt.submit({ text: 'Secondo' } as any)
+    await $.turn.start({ turnId: 't2' } as any)
+    await edit($, '/work/src/app.py')
+    await $.turn.complete({ reason: 'answer', answer: 'Ok.', durationMs: 1 } as any)
+
+    expect(disk['/work/.gitignore']).toBe('LEDGER.md\n')
+  })
+
+  test('non tocca il .gitignore se LEDGER.md o /LEDGER.md c’è già', async ($, on) => {
+    const { disk } = await setup($, on, {
+      git: true,
+      disk: { '/work/.gitignore': 'dist\nLEDGER.md\n' },
+      replies: [
+        '{"why": "A.", "files": {"src/app.py": "A."}}',
+        '{"why": "B.", "files": {"src/app.py": "B."}}',
+        '{"why": "C.", "files": {"src/app.py": "C."}}',
+      ],
+    })
+
+    await $.prompt.submit({ text: 'Uno' } as any)
+    await $.turn.start({ turnId: 't1' } as any)
+    await edit($, '/work/src/app.py')
+    await $.turn.complete({ reason: 'answer', answer: 'Ok.', durationMs: 1 } as any)
+    expect(disk['/work/.gitignore']).toBe('dist\nLEDGER.md\n')
+
+    disk['/work/.gitignore'] = 'foo\n/LEDGER.md\n'
+    await $.prompt.submit({ text: 'Due' } as any)
+    await $.turn.start({ turnId: 't2' } as any)
+    await edit($, '/work/src/app.py')
+    await $.turn.complete({ reason: 'answer', answer: 'Ok.', durationMs: 1 } as any)
+    expect(disk['/work/.gitignore']).toBe('foo\n/LEDGER.md\n')
+
+    disk['/work/.gitignore'] = 'LEDGER.md'
+    await $.prompt.submit({ text: 'Tre' } as any)
+    await $.turn.start({ turnId: 't3' } as any)
+    await edit($, '/work/src/app.py')
+    await $.turn.complete({ reason: 'answer', answer: 'Ok.', durationMs: 1 } as any)
+    expect(disk['/work/.gitignore']).toBe('LEDGER.md')
+  })
+
+  test('aggiunge LEDGER.md in fondo se manca l’a capo finale', async ($, on) => {
+    const { disk } = await setup($, on, {
+      git: true,
+      disk: { '/work/.gitignore': 'keep me' },
+      replies: [
+        '{"why": "A.", "files": {"src/app.py": "A."}}',
+        '{"why": "B.", "files": {"src/app.py": "B."}}',
+      ],
+    })
+
+    await $.prompt.submit({ text: 'Uno' } as any)
+    await $.turn.start({ turnId: 't1' } as any)
+    await edit($, '/work/src/app.py')
+    await $.turn.complete({ reason: 'answer', answer: 'Ok.', durationMs: 1 } as any)
+    expect(disk['/work/.gitignore']).toBe('keep me\nLEDGER.md\n')
+
+    disk['/work/.gitignore'] = 'keep\r\nme'
+    await $.prompt.submit({ text: 'Due' } as any)
+    await $.turn.start({ turnId: 't2' } as any)
+    await edit($, '/work/src/app.py')
+    await $.turn.complete({ reason: 'answer', answer: 'Ok.', durationMs: 1 } as any)
+    expect(disk['/work/.gitignore']).toBe('keep\r\nme\r\nLEDGER.md\r\n')
+  })
+
+  test('senza .git non crea il .gitignore', async ($, on) => {
+    const { disk, ledger } = await setup($, on, {
+      replies: ['{"why": "A.", "files": {"src/app.py": "A."}}'],
+    })
+
+    await $.prompt.submit({ text: 'Uno' } as any)
+    await $.turn.start({ turnId: 't1' } as any)
+    await edit($, '/work/src/app.py')
+    await $.turn.complete({ reason: 'answer', answer: 'Ok.', durationMs: 1 } as any)
+
+    expect(ledger()).toContain('`src/app.py`')
+    expect(disk['/work/.gitignore']).toBeUndefined()
+  })
+
+  test('un .gitignore non scrivibile non blocca il turno', async ($, on) => {
+    const { ledger, toasts } = await setup($, on, {
+      git: true,
+      blockGitignore: true,
+      replies: ['{"why": "A.", "files": {"src/app.py": "A."}}'],
+    })
+
+    await $.prompt.submit({ text: 'Uno' } as any)
+    await $.turn.start({ turnId: 't1' } as any)
+    await edit($, '/work/src/app.py')
+    await $.turn.complete({ reason: 'answer', answer: 'Ok.', durationMs: 1 } as any)
+
+    expect(ledger()).toContain('`src/app.py`')
+    expect(toasts).toEqual([{ text: 'LEDGER.md updated (1 file)', timeoutMs: 10000 }])
   })
 })

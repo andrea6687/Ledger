@@ -1,6 +1,6 @@
 {
   "name": "ledger",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "At the end of a turn, updates today's section in LEDGER.md with the files Claude created or modified.",
   "author": { "name": "Andrea Sportello" },
   "types": "./types/index.d.ts"

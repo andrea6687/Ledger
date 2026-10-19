@@ -253,6 +253,47 @@ async function rewrite(
   return place(text, date, renderSection(date, requests, why, files))
 }
 
+function alreadyIgnored(text: string): boolean {
+  return text.split(/\r?\n/).some(line => {
+    const name = line.trim()
+
+    return name === FILE || name === `/${FILE}`
+  })
+}
+
+function appendIgnore(text: string): string {
+  if (alreadyIgnored(text)) return text
+  if (text === '') return `${FILE}\n`
+
+  const nl = text.includes('\r\n') ? '\r\n' : '\n'
+  const base = text.endsWith('\n') ? text : `${text}${nl}`
+
+  return `${base}${FILE}${nl}`
+}
+
+async function ensureIgnored($: EngineInterface, cwd: string): Promise<void> {
+  try {
+    if (!(await $.fs.exists(`${cwd}/.git`))) return
+
+    const ignore = `${cwd}/.gitignore`
+
+    if (!(await $.fs.exists(ignore))) {
+      await $.fs.write(ignore, `${FILE}\n`)
+      return
+    }
+
+    const current = await $.fs.read(ignore)
+
+    if (typeof current !== 'string') return
+
+    const next = appendIgnore(current)
+
+    if (next !== current) await $.fs.write(ignore, next)
+  } catch {
+    // Un .gitignore non scrivibile non deve bloccare il turno.
+  }
+}
+
 async function record(
   $: EngineInterface,
   path: string,
@@ -369,7 +410,10 @@ export const register: Register = on => {
       const summary = alive.length > 0 ? await summarize($, asked, e.answer, alive) : { why: '', files: {} }
       const nextText = await rewrite($, cwd, text, date, asked, summary, alive)
 
-      if (nextText !== text) await $.fs.write(path, nextText)
+      if (nextText !== text) {
+        await $.fs.write(path, nextText)
+        await ensureIgnored($, cwd)
+      }
     }
 
     await update($, pending, () => [])
