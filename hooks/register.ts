@@ -125,6 +125,9 @@ async function record(
   // Il changelog non registra sé stesso.
   if (file === FILE) return
 
+  // File fuori dalla cartella del progetto (script temporanei, scratchpad): rumore.
+  if (file === path && /^([A-Za-z]:|\/)/.test(file)) return
+
   await update($, pending, list => {
     const at = list.findIndex(c => c.file === file)
 
@@ -150,7 +153,8 @@ export const register: Register = on => {
   on('prompt.submit', async ($, e, next) => {
     const changed = await read($, pending)
 
-    if (changed.length === 0) {
+    // Le notifiche automatiche non sono una richiesta dell'utente.
+    if (changed.length === 0 && !e.text.startsWith('<task-notification>')) {
       await update($, request, () => e.text)
     }
 

@@ -30,6 +30,7 @@ async function runTurn($: any, on: any, modelText: string | null) {
 
   await $.session.start({ surface: 'terminal', isInteractive: true, cwd: '/work' } as any)
   await $.prompt.submit({ text: 'Correggi il calcolo dell\'IVA in app.py' } as any)
+  await $.prompt.submit({ text: '<task-notification>done</task-notification>' } as any)
   await $.turn.start({ turnId: 't1' } as any)
   await $.tool.call({
     tool: 'Edit',
@@ -37,6 +38,7 @@ async function runTurn($: any, on: any, modelText: string | null) {
     old_string: 'iva = x * 0.2',
     new_string: 'iva = x * 0.22',
   } as any)
+  await $.tool.call({ tool: 'Write', file_path: '/tmp/scratch.py', content: 'x = 1' + String.fromCharCode(10) } as any)
   await $.turn.complete({ reason: 'answer', answer: 'Ho portato l\'aliquota al 22%.', durationMs: 1 } as any)
 
   return { changelog: written['/work/CHANGELOG.md'] ?? '', toasts }
@@ -56,6 +58,8 @@ describe('ledger', () => {
     expect(text).toContain('**Request:** Correggi il calcolo dell\'IVA')
     expect(text).toContain('**Why:** The VAT rate was wrong.')
     expect(text).toContain('What changed: Rate changed from 0.2 to 0.22.')
+    expect(text).not.toContain('task-notification')
+    expect(text).not.toContain('scratch.py')
   })
 
   test('senza risposta del modello scrive comunque file e richiesta', async ($, on) => {
