@@ -1,0 +1,24 @@
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Local assistant and MCP config
+.claude/settings.local.json
+.mcp.json
+mcp.json
+CLAUDE.local.md
+
+# Keys and credentials
+*.pem
+*.p8
+*.p12
+*.key
+*.mobileprovision
+id_rsa
+id_ed25519
+.netrc
+credentials.json
+
+# OS
+.DS_Store
