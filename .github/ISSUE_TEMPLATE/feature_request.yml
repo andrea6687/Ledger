@@ -1,0 +1,24 @@
+name: Idea / Proposta
+description: Suggest an improvement. / Proponi un miglioramento.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would it solve? / Quale problema risolverebbe?
+      description: For example a day's section that misses a file you expected to see. / Per esempio la sezione di un giorno a cui manca un file che ti aspettavi.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea / La tua idea
+    validations:
+      required: true
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - label: This is about the daily LEDGER.md summary, not sending more of a project than the documented snippets. / Riguarda il riassunto giornaliero in LEDGER.md, non inviare più dati del progetto dei frammenti documentati.
+          required: true

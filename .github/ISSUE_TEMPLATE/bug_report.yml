@@ -1,0 +1,52 @@
+name: Bug report / Segnala un problema
+description: Something doesn't work as expected. / Qualcosa non funziona come previsto.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please remove private prompts, file contents and secrets before posting.
+        Grazie per la segnalazione! Togli prompt, contenuti di file e segreti prima di pubblicare.
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where it runs / Dove gira
+      options:
+        - Claude Code terminal
+        - Claude Desktop (Code tab)
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How you installed it / Come lo hai installato
+      options:
+        - Marketplace (andrea6687/ledger)
+        - Local folder (~/.claude/mods/ledger)
+        - claude --plugin-dir
+        - Not sure / Non so
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Ledger version / Versione di Ledger
+      description: The version field in .claude-plugin/plugin.json. On main it is 0.2.1. / Il campo version in .claude-plugin/plugin.json. Su main è 0.2.1.
+      placeholder: "0.2.1"
+  - type: dropdown
+    id: model
+    attributes:
+      label: USE_MODEL in hooks/register.ts
+      options:
+        - "true (default)"
+        - "false"
+        - Not sure / Non so
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What you expected in LEDGER.md, and what happened / Cosa ti aspettavi in LEDGER.md e cosa è successo
+      description: Don't paste file contents or secrets. / Non incollare contenuti di file o segreti.
+    validations:
+      required: true
